@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maxs+3d+Shop</title>
+  <title>Mein Shop</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -540,7 +540,7 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo">Maxs<span>3d<span>Shop</span></div>
+  <div class="logo">Shop<span>Board</span></div>
   <div class="header-actions">
     <button class="btn btn-ghost" id="adminToggleBtn" onclick="openAdminLogin()">⚙ Admin</button>
   </div>
@@ -551,8 +551,8 @@
   <!-- HERO -->
   <div class="hero">
     <div class="hero-tag" id="heroTag">Verfügbare Artikel</div>
-    <h1>Trag dich ein,<br><em>lass dir was schenken</em></h1>
-    <p>Hier findest du Sachen, die ich selbst am 3D-Drucker hergestellt habe. Such dir etwas aus und trag deinen ECHTEN Namen ein, sonst besteht die möglichkeit das deine bestellung nie bei dir ankommt. Einfach Name hinschreiben und fertig.</p>
+    <h1>Trag dich ein,<br><em>nimm dir was.</em></h1>
+    <p>Hier findest du Sachen, die ich selbst am 3D-Drucker hergestellt habe. Such dir etwas aus und trag deinen Namen ein – ich melde mich dann wegen Abholung oder Versand bei dir. Kein Account, einfach Name hinschreiben und fertig. Hast du auf MakerWorld ein Modell gefunden das du gerne hättest? Schreib mir einfach und ich drucke es für dich!</p>
   </div>
 
   <!-- STATS -->
@@ -870,9 +870,15 @@ function promptEdit(id) {
   if (newDesc === null) return;
   const newPrice = prompt('Neuer Preis/Info:', item.price);
   if (newPrice === null) return;
+  const newSlots = prompt(`Verfügbare Plätze (aktuell belegt: ${item.registrations.length}):`, item.slots);
+  if (newSlots === null) return;
+  const parsedSlots = parseInt(newSlots);
+  if (isNaN(parsedSlots) || parsedSlots < 1) { toast('Ungültige Anzahl an Plätzen.', 'error'); return; }
+  if (parsedSlots < item.registrations.length) { toast(`Mindestens ${item.registrations.length} Plätze nötig (bereits belegt).`, 'error'); return; }
   item.title = newTitle.trim();
   item.desc = newDesc.trim();
   item.price = newPrice.trim();
+  item.slots = parsedSlots;
   save();
   toast('Artikel aktualisiert ✓', 'success');
 }
