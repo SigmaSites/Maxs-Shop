@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maxs Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f0e0c;
+      --surface: #1a1916;
+      --surface2: #242220;
+      --border: #2e2c28;
+      --accent: #e8c97e;
+      --accent2: #d4a853;
+      --text: #f0ece4;
+      --muted: #7a7468;
+      --danger: #c0614a;
+      --success: #6a9e72;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 70px;
+      position: sticky;
+      top: 0;
+      background: rgba(15,14,12,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+
+    .logo span { color: var(--text); }
+
+    .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.18s ease;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #0f0e0c;
+      font-weight: 600;
+    }
+    .btn-accent:hover { background: #f0d590; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(232,201,126,0.25); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+    .btn-danger:hover { background: var(--danger); color: white; }
+
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 3rem 0 4rem;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: rgba(232,201,126,0.1);
+      border: 1px solid rgba(232,201,126,0.25);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem;
+      border-radius: 100px;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+
+    .stat { text-align: center; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.1rem; }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── ITEM CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:hover { border-color: rgba(232,201,126,0.3); transform: translateY(-2px); }
+
+    .card-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      background: var(--surface2);
+      display: block;
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .card-body { padding: 1.25rem; }
+
+    .card-category {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .badge-available { background: rgba(106,158,114,0.15); color: var(--success); }
+    .badge-taken { background: rgba(192,97,74,0.15); color: var(--danger); }
+    .badge-price { background: rgba(232,201,126,0.1); color: var(--accent); }
+
+    .registrations {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .reg-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .reg-list { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .reg-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border-radius: 6px;
+      padding: 0.4rem 0.7rem;
+      font-size: 0.85rem;
+    }
+
+    .reg-item .reg-name { display: flex; align-items: center; gap: 0.5rem; }
+    .reg-item .reg-slot { font-size: 0.7rem; color: var(--muted); }
+
+    .register-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .register-form input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+
+    .register-form input:focus { border-color: var(--accent); }
+    .register-form input::placeholder { color: var(--muted); }
+
+    /* ── ADMIN PANEL ── */
+    .admin-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 3rem;
+      display: none;
+    }
+
+    .admin-panel.visible { display: block; animation: fadeUp 0.3s ease; }
+
+    .admin-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .stats-bar { gap: 1.5rem; }
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-group label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.18s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--accent); }
+
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .form-group select option { background: var(--surface2); }
+
+    .form-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 0.5rem;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.visible { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      width: 100%;
+      max-width: 420px;
+      transform: translateY(20px);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.visible .modal { transform: translateY(0); }
+
+    .modal h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.6; }
+
+    .modal input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 0.9rem;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 1rem;
+      transition: border-color 0.18s;
+    }
+
+    .modal input:focus { border-color: var(--accent); }
+
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+    .error-msg { color: var(--danger); font-size: 0.8rem; margin-bottom: 0.75rem; display: none; }
+    .error-msg.visible { display: block; }
+
+    /* ── EMPTY STATE ── */
+    .empty {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--muted);
+    }
+
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    .empty h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--text); margin-bottom: 0.5rem; }
+
+    /* ── TOAST ── */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1.1rem;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(20px); }
+    }
+
+    .toast.success { border-color: rgba(106,158,114,0.4); }
+    .toast.error   { border-color: rgba(192,97,74,0.4); }
+
+    /* ── ADMIN ITEM ACTIONS ── */
+    .card-admin-actions {
+      display: none;
+      gap: 0.5rem;
+      padding: 0 1.25rem 1.25rem;
+    }
+
+    .admin-mode .card-admin-actions { display: flex; }
+
+    /* ── SECTION DIVIDER ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .section-header .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tab {
+      padding: 0.35rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .tab.active, .tab:hover {
+      background: var(--surface);
+      color: var(--text);
+      border-color: rgba(232,201,126,0.3);
+    }
+
+    .tab.active { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Maxs<span>Shop</span></div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" id="adminToggleBtn" onclick="openAdminLogin()">⚙ Admin</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag" id="heroTag">Verfügbare Artikel</div>
+    <h1>Trag dich ein,<br><em>nimm dir was.</em></h1>
+    <p>Stöbere durch verfügbare Artikel und trage deinen Namen ein, um einen zu reservieren.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">Artikel</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statAvail">0</div>
+      <div class="stat-label">Verfügbar</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statRegs">0</div>
+      <div class="stat-label">Reservierungen</div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-panel" id="adminPanel">
+    <h2>✦ Artikel hinzufügen</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Titel *</label>
+        <input type="text" id="newTitle" placeholder="z.B. Rotes Sofa" />
+      </div>
+      <div class="form-group">
+        <label>Kategorie</label>
+        <input type="text" id="newCategory" placeholder="z.B. Möbel, Kleidung…" />
+      </div>
+      <div class="form-group full">
+        <label>Beschreibung</label>
+        <textarea id="newDesc" placeholder="Kurze Beschreibung des Artikels…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Bild-URL (optional)</label>
+        <input type="url" id="newImage" placeholder="https://…" />
+      </div>
+      <div class="form-group">
+        <label>Emoji (Platzhalter)</label>
+        <input type="text" id="newEmoji" placeholder="🛋️" maxlength="4" />
+      </div>
+      <div class="form-group">
+        <label>Preis / Info (optional)</label>
+        <input type="text" id="newPrice" placeholder="z.B. Kostenlos, 5 €, Tausch…" />
+      </div>
+      <div class="form-group">
+        <label>Max. Reservierungen</label>
+        <input type="number" id="newSlots" value="1" min="1" max="99" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" onclick="clearForm()">✕ Leeren</button>
+        <button class="btn btn-accent" onclick="addItem()">＋ Hinzufügen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITEMS SECTION -->
+  <div class="section-header">
+    <h2 id="sectionTitle">Alle Artikel</h2>
+    <div class="filter-tabs">
+      <button class="tab active" onclick="setFilter('all', this)">Alle</button>
+      <button class="tab" onclick="setFilter('available', this)">Verfügbar</button>
+      <button class="tab" onclick="setFilter('taken', this)">Belegt</button>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid" id="itemGrid"></div>
+
+</main>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <h3>🔐 Admin-Zugang</h3>
+    <p>Gib das Admin-Passwort ein, um Artikel verwalten zu können.</p>
+    <div class="error-msg" id="loginError">Falsches Passwort. Bitte erneut versuchen.</div>
+    <input type="password" id="passwordInput" placeholder="Passwort…" onkeydown="if(event.key==='Enter')checkPassword()" />
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('loginModal')">Abbrechen</button>
+      <button class="btn btn-accent" onclick="checkPassword()">Einloggen</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h3>🗑 Artikel löschen?</h3>
+    <p id="deleteModalText">Dieser Artikel und alle Reservierungen werden unwiderruflich gelöscht.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('deleteModal')">Abbrechen</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- UNREGISTER CONFIRM MODAL -->
+<div class="modal-overlay" id="unregModal">
+  <div class="modal">
+    <h3>Reservierung löschen?</h3>
+    <p id="unregModalText">Diese Reservierung wirklich entfernen?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('unregModal')">Abbrechen</button>
+      <button class="btn btn-danger" onclick="confirmUnreg()">Entfernen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+// PASSWORT HIER ÄNDERN:
+const ADMIN_PASSWORD = "MaxsShop1234567890MaximilianMichael13!";
+
+// ── STATE ───────────────────────────────────────────────
+let items = JSON.parse(localStorage.getItem('shopItems') || '[]');
+let isAdmin = false;
+let currentFilter = 'all';
+let pendingDeleteId = null;
+let pendingUnreg = null; // {itemId, name}
+
+// ── STORAGE ─────────────────────────────────────────────
+function save() {
+  localStorage.setItem('shopItems', JSON.stringify(items));
+  render();
+  updateStats();
+}
+
+// ── RENDER ──────────────────────────────────────────────
+function render() {
+  const grid = document.getElementById('itemGrid');
+  let filtered = items;
+
+  if (currentFilter === 'available') filtered = items.filter(i => i.registrations.length < i.slots);
+  if (currentFilter === 'taken') filtered = items.filter(i => i.registrations.length >= i.slots);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <div class="empty-icon">📭</div>
+        <h3>${items.length === 0 ? 'Noch keine Artikel' : 'Keine Artikel gefunden'}</h3>
+        <p>${items.length === 0 && isAdmin ? 'Füge deinen ersten Artikel über das Admin-Panel hinzu.' : 'Versuche einen anderen Filter.'}</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => cardHTML(item)).join('');
+
+  // animate stagger
+  grid.querySelectorAll('.card').forEach((c, i) => {
+    c.style.animationDelay = `${i * 0.06}s`;
+  });
+}
+
+function cardHTML(item) {
+  const taken = item.registrations.length >= item.slots;
+  const imgHTML = item.image
+    ? `<img class="card-img" src="${escHtml(item.image)}" alt="${escHtml(item.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div class="card-img-placeholder" style="display:none">${escHtml(item.emoji || '📦')}</div>`
+    : `<div class="card-img-placeholder">${escHtml(item.emoji || '📦')}</div>`;
+
+  const regsHTML = item.registrations.length > 0
+    ? `<div class="registrations">
+         <div class="reg-label">Reservierungen (${item.registrations.length}/${item.slots})</div>
+         <div class="reg-list">
+           ${item.registrations.map((r,i) => `
+             <div class="reg-item">
+               <span class="reg-name">👤 ${escHtml(r)}</span>
+               ${isAdmin ? `<button class="btn btn-sm btn-danger" onclick="askUnreg('${escHtml(item.id)}','${escHtml(r).replace(/'/g,"\\'")}')">✕</button>` : ''}
+             </div>`).join('')}
+         </div>
+       </div>` : '';
+
+  const registerHTML = !taken
+    ? `<div class="register-form">
+         <input type="text" placeholder="Dein Name…" id="regInput_${item.id}" maxlength="60" onkeydown="if(event.key==='Enter')register('${item.id}')" />
+         <button class="btn btn-accent btn-sm" onclick="register('${item.id}')">Eintragen</button>
+       </div>` : `<p style="font-size:0.8rem;color:var(--danger);margin-top:0.75rem;text-align:center;">✕ Alle Plätze belegt</p>`;
+
+  return `
+    <div class="card ${isAdmin ? 'admin-mode' : ''}" id="card_${item.id}">
+      ${imgHTML}
+      <div class="card-body">
+        ${item.category ? `<div class="card-category">${escHtml(item.category)}</div>` : ''}
+        <div class="card-title">${escHtml(item.title)}</div>
+        ${item.desc ? `<div class="card-desc">${escHtml(item.desc)}</div>` : ''}
+        <div class="card-meta">
+          <span class="badge ${taken ? 'badge-taken' : 'badge-available'}">
+            ${taken ? '✕ Belegt' : '✓ Verfügbar'}
+          </span>
+          ${item.price ? `<span class="badge badge-price">💰 ${escHtml(item.price)}</span>` : ''}
+          ${item.slots > 1 ? `<span class="badge" style="background:rgba(255,255,255,0.05);color:var(--muted)">👥 ${item.slots} Plätze</span>` : ''}
+        </div>
+        ${regsHTML}
+        ${registerHTML}
+      </div>
+      <div class="card-admin-actions">
+        <button class="btn btn-sm btn-ghost" onclick="promptEdit('${item.id}')">✏ Bearbeiten</button>
+        <button class="btn btn-sm btn-danger" onclick="askDelete('${item.id}')">🗑 Löschen</button>
+      </div>
+    </div>`;
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = items.length;
+  document.getElementById('statAvail').textContent = items.filter(i => i.registrations.length < i.slots).length;
+  document.getElementById('statRegs').textContent = items.reduce((s, i) => s + i.registrations.length, 0);
+}
+
+// ── FILTER ──────────────────────────────────────────────
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── ADD ITEM ────────────────────────────────────────────
+function addItem() {
+  const title = document.getElementById('newTitle').value.trim();
+  if (!title) { toast('Bitte einen Titel eingeben.', 'error'); return; }
+
+  const item = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    title,
+    desc: document.getElementById('newDesc').value.trim(),
+    category: document.getElementById('newCategory').value.trim(),
+    image: document.getElementById('newImage').value.trim(),
+    emoji: document.getElementById('newEmoji').value.trim() || '📦',
+    price: document.getElementById('newPrice').value.trim(),
+    slots: Math.max(1, parseInt(document.getElementById('newSlots').value) || 1),
+    registrations: [],
+    created: Date.now()
+  };
+
+  items.unshift(item);
+  save();
+  clearForm();
+  toast(`"${title}" hinzugefügt! ✓`, 'success');
+}
+
+function clearForm() {
+  ['newTitle','newDesc','newCategory','newImage','newEmoji','newPrice'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('newSlots').value = '1';
+}
+
+// ── REGISTER ────────────────────────────────────────────
+function register(itemId) {
+  const input = document.getElementById(`regInput_${itemId}`);
+  const name = input ? input.value.trim() : '';
+  if (!name) { toast('Bitte deinen Namen eingeben.', 'error'); input && input.focus(); return; }
+
+  const item = items.find(i => i.id === itemId);
+  if (!item) return;
+  if (item.registrations.length >= item.slots) { toast('Leider schon belegt!', 'error'); return; }
+  if (item.registrations.map(r => r.toLowerCase()).includes(name.toLowerCase())) {
+    toast('Du bist bereits eingetragen!', 'error'); return;
+  }
+
+  item.registrations.push(name);
+  save();
+  toast(`${name} wurde eingetragen! 🎉`, 'success');
+}
+
+// ── DELETE ──────────────────────────────────────────────
+function askDelete(id) {
+  pendingDeleteId = id;
+  const item = items.find(i => i.id === id);
+  document.getElementById('deleteModalText').textContent =
+    `"${item ? item.title : 'Dieser Artikel'}" und alle Reservierungen werden unwiderruflich gelöscht.`;
+  openModal('deleteModal');
+}
+
+function confirmDelete() {
+  if (!pendingDeleteId) return;
+  const item = items.find(i => i.id === pendingDeleteId);
+  items = items.filter(i => i.id !== pendingDeleteId);
+  save();
+  closeModal('deleteModal');
+  toast(`"${item ? item.title : 'Artikel'}" gelöscht.`, 'success');
+  pendingDeleteId = null;
+}
+
+// ── UNREGISTER ──────────────────────────────────────────
+function askUnreg(itemId, name) {
+  pendingUnreg = { itemId, name };
+  document.getElementById('unregModalText').textContent = `Reservierung von "${name}" entfernen?`;
+  openModal('unregModal');
+}
+
+function confirmUnreg() {
+  if (!pendingUnreg) return;
+  const { itemId, name } = pendingUnreg;
+  const item = items.find(i => i.id === itemId);
+  if (item) {
+    item.registrations = item.registrations.filter(r => r !== name);
+    save();
+    toast(`${name} wurde entfernt.`, 'success');
+  }
+  closeModal('unregModal');
+  pendingUnreg = null;
+}
+
+// ── EDIT (inline prompt fallback) ───────────────────────
+function promptEdit(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const newTitle = prompt('Neuer Titel:', item.title);
+  if (newTitle === null) return;
+  if (!newTitle.trim()) { toast('Titel darf nicht leer sein.', 'error'); return; }
+  const newDesc = prompt('Neue Beschreibung:', item.desc);
+  if (newDesc === null) return;
+  const newPrice = prompt('Neuer Preis/Info:', item.price);
+  if (newPrice === null) return;
+  item.title = newTitle.trim();
+  item.desc = newDesc.trim();
+  item.price = newPrice.trim();
+  save();
+  toast('Artikel aktualisiert ✓', 'success');
+}
+
+// ── ADMIN LOGIN ──────────────────────────────────────────
+function openAdminLogin() {
+  if (isAdmin) {
+    isAdmin = false;
+    document.getElementById('adminPanel').classList.remove('visible');
+    document.getElementById('adminToggleBtn').textContent = '⚙ Admin';
+    render();
+    toast('Admin-Modus beendet.', 'success');
+    return;
+  }
+  openModal('loginModal');
+  setTimeout(() => document.getElementById('passwordInput').focus(), 200);
+}
+
+function checkPassword() {
+  const pw = document.getElementById('passwordInput').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    closeModal('loginModal');
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('loginError').classList.remove('visible');
+    document.getElementById('adminPanel').classList.add('visible');
+    document.getElementById('adminToggleBtn').textContent = '✕ Admin beenden';
+    render();
+    toast('Admin-Modus aktiv ✓', 'success');
+  } else {
+    document.getElementById('loginError').classList.add('visible');
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passwordInput').focus();
+  }
+}
+
+// ── MODAL HELPERS ────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('visible'); }
+function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('visible');
+  });
+});
+
+// ── TOAST ────────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${type === 'success' ? '✓' : '!'}</span> ${escHtml(msg)}`;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+// ── UTILS ─────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// ── INIT ──────────────────────────────────────────────────
+// Demo-Artikel hinzufügen, falls leer
+if (items.length === 0) {
+  items = [
+    {
+      id: 'demo1',
+      title: 'Rotes Vintage-Sofa',
+      desc: 'Leicht getragen, aber noch in gutem Zustand. Selbstabholung in München.',
+      category: 'Möbel',
+      image: '',
+      emoji: '🛋️',
+      price: 'Kostenlos',
+      slots: 1,
+      registrations: [],
+      created: Date.now()
+    },
+    {
+      id: 'demo2',
+      title: 'Fahrrad – Stadtrad 28"',
+      desc: '7-Gang Shimano, neue Bremsen, frisch geölt. Top Zustand!',
+      category: 'Sport & Freizeit',
+      image: '',
+      emoji: '🚲',
+      price: '50 €',
+      slots: 1,
+      registrations: ['Max Mustermann'],
+      created: Date.now()
+    },
+    {
+      id: 'demo3',
+      title: 'Gartenarbeit Samstag',
+      desc: 'Hilfe beim Unkraut jäten und Hecke schneiden. 3-4 Stunden.',
+      category: 'Mithilfe gesucht',
+      image: '',
+      emoji: '🌿',
+      price: 'Kaffee & Kuchen',
+      slots: 3,
+      registrations: ['Anna'],
+      created: Date.now()
+    }
+  ];
+  save();
+}
+
+render();
+updateStats();
+
+// Keyboard ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+});
+</script>
+</body>
+</html>
